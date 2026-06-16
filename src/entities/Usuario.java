@@ -7,16 +7,16 @@ public class Usuario extends Base {
     private String apellido;
     private String mail;
     private String celular;
-    private String contrasena;
+    private String contrasenia;
     private Rol rol;
 
-    public Usuario(String nombre, String apellido, String mail, String celular, String contrasena, Rol rol) {
+    public Usuario(String nombre, String apellido, String mail, String celular, String contrasenia, Rol rol) {
         super();
         this.nombre = nombre;
         this.apellido = apellido;
         this.mail = mail;
         this.celular = celular;
-        this.contrasena = contrasena;
+        this.contrasenia = contrasenia;
         this.rol = rol;
     }
 
@@ -52,12 +52,12 @@ public class Usuario extends Base {
         this.celular = celular;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getContrasenia() {
+        return contrasenia;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setContrasenia(String contrasenia) {
+        this.contrasenia = contrasenia;
     }
 
     public Rol getRol() {
@@ -70,7 +70,7 @@ public class Usuario extends Base {
 
     @Override
     public String toString() {
-        return "Usuario{" + "nombre=" + nombre + ", apellido=" + apellido + ", mail=" + mail + ", celular=" + celular + ", contrasena=" + contrasena + ", rol=" + rol + '}';
+        return "Usuario{" + "nombre=" + nombre + ", apellido=" + apellido + ", mail=" + mail + ", celular=" + celular + ", contrasenia=" + contrasenia + ", rol=" + rol + '}';
     }
     
     

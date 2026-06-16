@@ -3,7 +3,7 @@ package entities;
 import java.time.LocalDateTime;
 
 public abstract class Base {
-    private static Long contador = 1L;
+    private static Long contador = 1L; // Esto no se para que es todavia 
     protected Long id;
     protected boolean eliminado;
     protected LocalDateTime createdAt;
@@ -18,6 +18,10 @@ public abstract class Base {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public boolean isEliminado() {
         return eliminado;
     }
