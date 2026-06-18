@@ -1,5 +1,6 @@
 package entities;
 
+import Exceptions.BusinessException;
 import enums.Estado;
 import enums.FormaPago;
 import interfaces.Calculable;
@@ -17,10 +18,12 @@ public class Pedido extends Base implements Calculable{
     private Usuario usuario;
     private List<DetallePedido> detalles = new ArrayList();
     
-    public Pedido(FormaPago formaPago) {
+    public Pedido(FormaPago formaPago, Usuario usuario) {
+        super();
         this.fecha = LocalDate.now();
         this.estado = Estado.PENDIENTE;
         this.formaPago = formaPago;
+        this.usuario = usuario;
         calcularTotal();
     }
 
@@ -62,6 +65,36 @@ public class Pedido extends Base implements Calculable{
 
     public List<DetallePedido> getDetalles() {
         return Collections.unmodifiableList(detalles);
+    }
+    
+    public void addDetallePedido(int cantidad, Producto producto) throws BusinessException{
+        if (producto == null) {
+            throw new BusinessException("El producto no puede ser nulo.");
+        }
+        
+        if (cantidad < 0) {
+            throw new BusinessException("La cantidad no puede ser menor a 0");
+        }
+        
+        detalles.add(new DetallePedido(producto, cantidad));
+    }
+    
+    public DetallePedido findeDetallePedidoByProducto(Producto producto) {
+        for (DetallePedido detalle : detalles) {
+            if (detalle.getProducto().equals(producto)) {
+                return detalle;
+            }
+        }
+        return null;
+    }
+    
+    public void deleteDetallePedidoByProducto(Producto producto) {
+        for (DetallePedido detalle : detalles) {
+            if (detalle.getProducto().equals(producto)) {
+                detalle.setEliminado(true);
+            }
+        }
+        calcularTotal();
     }
         
     @Override
