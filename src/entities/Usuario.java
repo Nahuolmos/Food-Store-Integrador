@@ -70,10 +70,11 @@ public class Usuario extends Base {
 
     @Override
     public String toString() {
-        return "Usuario{" + "nombre=" + nombre + ", apellido=" + apellido + ", mail=" + mail + ", celular=" + celular + ", contrasenia=" + contrasenia + ", rol=" + rol + '}';
+        return "ID: " + getId() +
+               "| Nombre: " + nombre + " " + apellido +
+               "| Email: " + mail +
+               "| Celular: " + celular +
+               "| Rol: " + rol +
+               "| Creado: " + getCreatedAt();
     }
-    
-    
-    
-    
 }
