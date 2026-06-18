@@ -3,13 +3,11 @@ package entities;
 import java.time.LocalDateTime;
 
 public abstract class Base {
-    private static Long contador = 1L; // Esto no se para que es todavia 
-    protected Long id;
-    protected boolean eliminado;
-    protected LocalDateTime createdAt;
+    private Long id;
+    private boolean eliminado;
+    private LocalDateTime createdAt;
 
     public Base() {
-        this.id = contador++;
         this.eliminado = false;
         this.createdAt = LocalDateTime.now();
     }
@@ -33,4 +31,8 @@ public abstract class Base {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }    
 }
