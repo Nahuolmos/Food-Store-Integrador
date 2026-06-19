@@ -38,6 +38,7 @@ public class Categoria extends Base {
 
     public void addProducto2Categoria(Producto producto) {
         if (producto != null && !productos.contains(producto)) {
+            producto.setCategoria(this);
             productos.add(producto);
         } else {
             System.out.println("El producto " + producto + " no pudo ser ingresado.");
@@ -46,6 +47,7 @@ public class Categoria extends Base {
 
     public void removeProductoFromCategoria(Producto producto) {
         if (producto != null && !productos.contains(producto)) {
+            producto.setCategoria(null);
             productos.remove(producto);
         }
     }
