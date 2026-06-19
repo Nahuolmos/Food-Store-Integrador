@@ -16,15 +16,14 @@ public class Producto extends Base {
 
     private List<DetallePedido> detallePedidos = new ArrayList<>();
 
-    public Producto(String nombre, Double precio, String descripcion, int stock, String imagen, Boolean disponible, Categoria categoria) {
+    public Producto(String nombre, Double precio, String descripcion, int stock, String imagen) {
         super();
         this.nombre = nombre;
         this.precio = precio;
         this.descripcion = descripcion;
         this.stock = stock;
-        this.disponible = disponible;
+        disponible = stock > 0;
         this.imagen = imagen;
-        this.categoria = categoria;
 
     }
 
@@ -68,6 +67,40 @@ public class Producto extends Base {
         return categoria;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setPrecio(Double precio) {
+        this.precio = precio;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
+    public void setDisponible(Boolean disponible) {
+        this.disponible = disponible;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
+
+    public void setDetallePedidos(List<DetallePedido> detallePedidos) {
+        this.detallePedidos = detallePedidos;
+    }
+
+    
+    
     public List<DetallePedido> getDetallePedidos() {
         return Collections.unmodifiableList(detallePedidos);
     }
