@@ -109,7 +109,7 @@ public class Pedido extends Base implements Calculable{
     @Override
     public String toString() {
         return '='+"===== Pedido ======" + 
-                "\n|Fecha: " + fecha + " - Estado: " + estado + "|" +
+                "\n|Fecha: " + fecha + " - Estado: " + estado + "Usuario" + " |" + 
                 "\n" + detalles + 
                 "\n- Total: $" + total + " - Metodo de pago: " + formaPago;
     }
