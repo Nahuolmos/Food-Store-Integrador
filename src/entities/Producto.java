@@ -1,9 +1,5 @@
 package entities;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 public class Producto extends Base {
 
     private String nombre;
@@ -14,9 +10,7 @@ public class Producto extends Base {
     private Boolean disponible;
     private Categoria categoria;
 
-    private List<DetallePedido> detallePedidos = new ArrayList<>();
-
-    public Producto(String nombre, Double precio, String descripcion, int stock, String imagen) {
+    public Producto(String nombre, Double precio, String descripcion, int stock, String imagen, boolean disponible1, Categoria categoria1) {
         super();
         this.nombre = nombre;
         this.precio = precio;
@@ -25,18 +19,6 @@ public class Producto extends Base {
         disponible = stock > 0;
         this.imagen = imagen;
 
-    }
-
-    public void addDetallePedido(DetallePedido detallePedido) {
-        if (detallePedido != null && !detallePedidos.contains(detallePedido)) {
-            detallePedidos.add(detallePedido);
-        }
-    }
-
-    public void removeDetallePedido(DetallePedido detallePedido) {
-        if (detallePedido != null && !detallePedidos.contains(detallePedido)) {
-            detallePedidos.remove(detallePedido);
-        }
     }
 
     public String getNombre() {
@@ -95,18 +77,8 @@ public class Producto extends Base {
         this.categoria = categoria;
     }
 
-    public void setDetallePedidos(List<DetallePedido> detallePedidos) {
-        this.detallePedidos = detallePedidos;
-    }
-
-    
-    
-    public List<DetallePedido> getDetallePedidos() {
-        return Collections.unmodifiableList(detallePedidos);
-    }
-
     @Override
     public String toString() {
-        return "Producto{" + "nombre=" + nombre + ", precio=" + precio + ", descripcion=" + descripcion + ", stock=" + stock + ", imagen=" + imagen + ", disponible=" + disponible + ", categoria=" + categoria + ", detallePedidos=" + detallePedidos + '}';
+        return "Producto{" + "nombre=" + nombre + ", precio=" + precio + ", descripcion=" + descripcion + ", stock=" + stock + ", imagen=" + imagen + ", disponible=" + disponible + ", categoria=" + categoria + '}';
     }
 }
