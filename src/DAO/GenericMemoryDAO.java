@@ -31,7 +31,11 @@ public abstract class GenericMemoryDAO<T extends Base> implements IBaseDAO<T> {
     @Override
     public void update(T entity) {
         if (entity.getId() == null || !tablaSimulada.containsKey(entity.getId())) {
-            throw new EntityNotFoundException("No existe el registro con id " + entity.getId());
+            try {
+                throw new EntityNotFoundException("No existe el registro con id " + entity.getId());
+            } catch (EntityNotFoundException ex) {
+                System.getLogger(GenericMemoryDAO.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
         }
         tablaSimulada.put(entity.getId(), entity);
     }
@@ -56,7 +60,11 @@ public abstract class GenericMemoryDAO<T extends Base> implements IBaseDAO<T> {
     public void delete(Long id) {
         T entity = tablaSimulada.get(id);
         if (entity == null || entity.isEliminado()) {
-            throw new EntityNotFoundException("No existe el registro con id " + id);
+            try {
+                throw new EntityNotFoundException("No existe el registro con id " + id);
+            } catch (EntityNotFoundException ex) {
+                System.getLogger(GenericMemoryDAO.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+            }
         }
         entity.setEliminado(true);
     }
