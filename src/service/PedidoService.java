@@ -1,99 +1,93 @@
 package service;
 
-import exceptions.EntityNotFoundException;
 import DAO.PedidoDAO;
-import exceptions.BusinessException;
-import entities.DetallePedido;
+import DAO.UsuarioDAO;
+import DAO.ProductoDAO;
 import entities.Pedido;
-import entities.Producto;
 import entities.Usuario;
+import entities.Producto;
+import entities.DetallePedido;
 import enums.Estado;
 import enums.FormaPago;
+import exceptions.EntityNotFoundException;
 import exceptions.ValidationException;
-
 import java.util.List;
 
 public class PedidoService {
+    private PedidoDAO pedidoDAO;
+    private UsuarioDAO usuarioDAO;
+    private ProductoDAO productoDAO;
 
-    private final PedidoDAO pedidoDAO;
-    private final UsuarioService usuarioService;
-    private final ProductoService productoService;
-
-    public PedidoService(PedidoDAO pedidoDAO, UsuarioService usuarioService, ProductoService productoService) {
+    public PedidoService(PedidoDAO pedidoDAO, UsuarioDAO usuarioDAO, ProductoDAO productoDAO) {
         this.pedidoDAO = pedidoDAO;
-        this.usuarioService = usuarioService;
-        this.productoService = productoService;
+        this.usuarioDAO = usuarioDAO;
+        this.productoDAO = productoDAO;
     }
 
-    public Pedido iniciarPedido(Long usuarioId, FormaPago formaPago) throws EntityNotFoundException {
-        Usuario usuario = usuarioService.buscarPorId(usuarioId);
-        Pedido pedido = new Pedido(formaPago, usuario);
-        return pedido;
-    }
+    public void registrarPedido(Long idUsuario, FormaPago formaPago, List<DetallePedido> mockDetalles) throws EntityNotFoundException, ValidationException {
+        
+        Usuario u = usuarioDAO.findById(idUsuario);
+        if (u == null || u.isEliminado()) throw new EntityNotFoundException("Usuario no válido.");
+        if (mockDetalles == null || mockDetalles.isEmpty()) throw new ValidationException("Debe agregar al menos un producto al pedido.");
 
-    /** Usa obligatoriamente el método propio de Pedido definido en el UML. */
-    public void agregarDetalle(Pedido pedido, Long productoId, int cantidad) throws ValidationException, BusinessException, EntityNotFoundException {
-        if (cantidad <= 0) {
-            throw new ValidationException("La cantidad debe ser mayor a 0.");
-        }
-        Producto producto = productoService.buscarPorId(productoId);
-        if (!producto.getDisponible()) {
-            throw new ValidationException("El producto '" + producto.getNombre() + "' no está disponible.");
-        }
-        pedido.addDetallePedido(cantidad, producto);
-    }
+        Pedido pedido = new Pedido(formaPago, u);
 
-    public void quitarDetalle(Pedido pedido, Long productoId) throws EntityNotFoundException {
-        Producto producto = productoService.buscarPorId(productoId);
-        pedido.deleteDetallePedidoByProducto(producto);
-    }
-
-    /** Calcula el total vía Calculable y persiste el pedido completo. */
-    public Pedido confirmarPedido(Pedido pedido) throws ValidationException {
-        if (pedido.getDetalles().isEmpty()) {
-            throw new ValidationException("El pedido debe tener al menos un detalle.");
-        }
-        pedido.calcularTotal();
-
-        // --- Simulación de transacción ---
-        // En la versión JDBC acá iría BEGIN TRANSACTION + INSERT pedido + INSERT detalles + COMMIT,
-        // con ROLLBACK si algo falla. En memoria, si falla el guardado no queda nada persistido.
         try {
-            return pedidoDAO.save(pedido);
-        } catch (RuntimeException ex) {
-            throw new ValidationException("No se pudo registrar el pedido: " + ex.getMessage());
+            for (DetallePedido item : mockDetalles) {
+                Producto prod = productoDAO.findById(item.getProducto().getId());
+                if (prod == null || prod.isEliminado()) throw new EntityNotFoundException("Producto inexistente.");
+                if (item.getCantidad() <= 0) throw new ValidationException("La cantidad debe ser mayor a 0.");
+                if (prod.getStock() < item.getCantidad()) {
+                    throw new ValidationException("Stock insuficiente para: " + prod.getNombre());
+                }
+
+                // Descontamos stock lógicamente
+                prod.setStock(prod.getStock() - item.getCantidad());
+                productoDAO.update(prod);
+
+                pedido.addDetallePedido(item.getCantidad(), prod);
+            }
+
+            pedido.calcularTotal();
+            pedidoDAO.save(pedido);
+
+        } catch (Exception e) {
+            // Rollback en memoria: Si algo falla, revertimos el stock de los productos procesados
+            for(DetallePedido item : mockDetalles) {
+                Producto prod = productoDAO.findById(item.getProducto().getId());
+                if (prod != null) {
+                    prod.setStock(prod.getStock() + item.getCantidad());
+                    productoDAO.update(prod);
+                }
+            }
+            throw new ValidationException("Operación cancelada (Simulated Rollback). Detalle: " + e.getMessage());
         }
     }
 
-    public List<Pedido> listar() {
+    public List<Pedido> listarPedidos() {
         return pedidoDAO.findAll();
     }
 
-    public List<Pedido> listarPorUsuario(Long usuarioId) {
-        return pedidoDAO.findByUsuario(usuarioId);
+    public List<Pedido> listarPorUsuario(Long idUsuario) {
+        return pedidoDAO.findByUsuario(idUsuario);
     }
 
-    public Pedido buscarPorId(Long id) throws EntityNotFoundException {
-        return pedidoDAO.findById(id).orElseThrow(() -> new EntityNotFoundException("No existe el pedido con id " + id));
+    public void actualizarEstadoPago(Long idPedido, Estado nuevoEstado, FormaPago nuevaForma) throws EntityNotFoundException {
+        Pedido p = pedidoDAO.findById(idPedido);
+        if (p == null || p.isEliminado()) throw new EntityNotFoundException("Pedido no encontrado.");
+        if(nuevoEstado != null) p.setEstado(nuevoEstado);
+        if(nuevaForma != null) p.setFormaPago(nuevaForma);
+        
+        pedidoDAO.update(p);
     }
 
-    public void actualizarEstado(Long id, Estado nuevoEstado) throws EntityNotFoundException {
-        Pedido pedido = buscarPorId(id);
-        pedido.setEstado(nuevoEstado);
-        pedidoDAO.update(pedido);
-    }
-
-    public void actualizarFormaPago(Long id, FormaPago nuevaFormaPago) throws EntityNotFoundException {
-        Pedido pedido = buscarPorId(id);
-        pedido.setFormaPago(nuevaFormaPago);
-        pedidoDAO.update(pedido);
-    }
-
-    public void eliminar(Long id) throws EntityNotFoundException {
-        Pedido pedido = buscarPorId(id);
-        pedidoDAO.delete(id);
-        for (DetallePedido detalle : pedido.getDetalles()) {
-            detalle.setEliminado(true);
+    public void eliminarPedido(Long idPedido) throws EntityNotFoundException {
+        Pedido p = pedidoDAO.findById(idPedido);
+        if (p == null || p.isEliminado()) throw new EntityNotFoundException("Pedido no encontrado.");
+        
+        for(DetallePedido dp : p.getDetalles()) {
+            dp.setEliminado(true);
         }
+        pedidoDAO.delete(idPedido);
     }
 }

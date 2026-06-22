@@ -74,7 +74,7 @@ public class PedidoMenu {
             Producto prod = productoService.obtenerPorId(idProd);
             int cant = ConsolaHelper.leerEntero("Cantidad: ");
 
-            DetallePedido item = new DetallePedido(cant, prod);
+            DetallePedido item = new DetallePedido(prod, cant);
             carroDeCompras.add(item);
 
             agregando = ConsolaHelper.leerConfirmacion("¿Desea añadir otro producto a este pedido?");
