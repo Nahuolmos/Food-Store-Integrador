@@ -1,6 +1,9 @@
 package UI;
 
 import entities.Categoria;
+import exceptions.DuplicateEntityException;
+import exceptions.EntityNotFoundException;
+import exceptions.ValidationException;
 import service.CategoriaService;
 import service.ProductoService;
 import java.util.List;
@@ -8,12 +11,10 @@ import java.util.List;
 public class CategoriaMenu {
 
     private final CategoriaService categoriaService;
-    private final ProductoService productoService;
     private final ConsolaHelper consola;
 
     public CategoriaMenu(CategoriaService categoriaService, ProductoService productoService, ConsolaHelper consola) {
         this.categoriaService = categoriaService;
-        this.productoService = productoService;
         this.consola = consola;
     }
 
@@ -52,7 +53,7 @@ public class CategoriaMenu {
         try {
             Categoria nueva = categoriaService.crear(nombre, desc);
             System.out.println("¡Categoría creada con éxito! (id " + nueva.getId() + ")");
-        } catch (Exception e) {
+        } catch (DuplicateEntityException | ValidationException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -69,7 +70,7 @@ public class CategoriaMenu {
 
             categoriaService.editar(id, nombre, desc);
             System.out.println("¡Categoría actualizada!");
-        } catch (Exception e) {
+        } catch (DuplicateEntityException | EntityNotFoundException | ValidationException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -84,7 +85,7 @@ public class CategoriaMenu {
         try {
             categoriaService.eliminar(id);
             System.out.println("¡Categoría dada de baja con éxito!");
-        } catch (Exception e) {
+        } catch (EntityNotFoundException | ValidationException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

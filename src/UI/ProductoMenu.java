@@ -1,6 +1,8 @@
 package UI;
 
 import entities.Producto;
+import exceptions.EntityNotFoundException;
+import exceptions.ValidationException;
 import service.ProductoService;
 import java.util.List;
 
@@ -70,7 +72,7 @@ public class ProductoMenu {
         try {
             Producto nuevo = productoService.crear(nombre, desc, precio, stock, imagen, idCat);
             System.out.println("¡Producto añadido al catálogo con éxito! (id " + nuevo.getId() + ")");
-        } catch (Exception e) {
+        } catch (EntityNotFoundException | ValidationException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -103,7 +105,7 @@ public class ProductoMenu {
             System.out.println("¡Producto actualizado!");
         } catch (NumberFormatException e) {
             System.out.println("Error: valor numérico inválido.");
-        } catch (Exception e) {
+        } catch (EntityNotFoundException | ValidationException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
@@ -118,7 +120,7 @@ public class ProductoMenu {
         try {
             productoService.eliminar(id);
             System.out.println("¡Producto retirado de la vista comercial!");
-        } catch (Exception e) {
+        } catch (EntityNotFoundException e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

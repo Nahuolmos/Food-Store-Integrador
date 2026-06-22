@@ -1,5 +1,8 @@
 package UI;
 
+import exceptions.BusinessException;
+import exceptions.EntityNotFoundException;
+import exceptions.ValidationException;
 import service.CategoriaService;
 import service.PedidoService;
 import service.ProductoService;
@@ -25,7 +28,7 @@ public class MenuPrincipal {
         this.pedidoMenu = new PedidoMenu(pedidoService, usuarioMenu, productoMenu, consola);
     }
 
-    public void iniciar() {
+    public void iniciar() throws ValidationException, BusinessException, EntityNotFoundException {
         boolean salir = false;
         while (!salir) {
             System.out.println("\n=== SISTEMA DE PEDIDOS (FOOD STORE) ===");
