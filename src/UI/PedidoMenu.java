@@ -1,114 +1,122 @@
 package UI;
 
-import exceptions.BusinessException;
-import exceptions.EntityNotFoundException;
+import entities.DetallePedido;
 import entities.Pedido;
+import entities.Producto;
+import enums.Estado;
 import enums.FormaPago;
-import exceptions.ValidationException;
-import java.util.List;
 import service.PedidoService;
+import service.ProductoService;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PedidoMenu {
-    private final PedidoService pedidoService;
-    private final UsuarioMenu usuarioMenu;
-    private final ProductoMenu productoMenu;
-    private final ConsolaHelper consola;
+    private PedidoService pedidoService;
+    private ProductoService productoService;
 
-    public PedidoMenu(PedidoService pedidoService, UsuarioMenu usuarioMenu, ProductoMenu productoMenu, ConsolaHelper consola) {
+    public PedidoMenu(PedidoService pedidoService, ProductoService productoService) {
         this.pedidoService = pedidoService;
-        this.usuarioMenu = usuarioMenu;
-        this.productoMenu = productoMenu;
-        this.consola = consola;
+        this.productoService = productoService;
     }
 
-    public void mostrarMenu() throws ValidationException, BusinessException, EntityNotFoundException {
-        boolean volver = false;
-        while (!volver) {
-            System.out.println("\n--- Pedidos ---");
-            System.out.println("1. Listar");
-            System.out.println("2. Crear pedido con detalles");
-            System.out.println("3. Actualizar estado / forma de pago");
-            System.out.println("4. Eliminar");
+    public void mostrarMenu() {
+        int opcion;
+        do {
+            System.out.println("\n--- GESTIÓN DE PEDIDOS (FOOD STORE) ---");
+            System.out.println("1. Listar Pedidos Activos");
+            System.out.println("2. Registrar Nuevo Pedido (1..N Detalles)");
+            System.out.println("3. Actualizar Estado o Forma de Pago");
+            System.out.println("4. Eliminar Pedido (Baja Lógica)");
             System.out.println("0. Volver");
-            switch (consola.leerEntero("Seleccione: ")) {
-                case 1 -> listar();
-                case 2 -> crearConDetalles();
-                case 3 -> actualizar();
-                case 4 -> eliminar();
-                case 0 -> volver = true;
-                default -> System.out.println("Opción inválida.");
-            }
-        }
-    }
+            opcion = ConsolaHelper.leerEntero("Seleccione una opción: ");
 
-    public void listar() {
-        List<Pedido> pedidos = pedidoService.listar();
-        if (pedidos.isEmpty()) {
-            System.out.println("No hay pedidos cargados.");
-            return;
-        }
-        pedidos.forEach(System.out::println);
-    }
-
-    private void crearConDetalles() throws ValidationException, BusinessException, EntityNotFoundException {
-        usuarioMenu.listar();
-        Long usuarioId = consola.leerLong("Id del usuario: ");
-        FormaPago formaPago = consola.leerFormaPago();
-        Pedido pedido = pedidoService.iniciarPedido(usuarioId, formaPago);
-        boolean agregarMas = true;
-        while (agregarMas) {
-            productoMenu.listar();
-            Long productoId = consola.leerLong("Id del producto a agregar: ");
-            int cantidad = consola.leerEntero("Cantidad: ");
             try {
-                pedidoService.agregarDetalle(pedido, productoId, cantidad);
-                System.out.println("Detalle agregado.");
-            } catch (EntityNotFoundException e) {
+                switch (opcion) {
+                    case 1 -> listar();
+                    case 2 -> crearPedido();
+                    case 3 -> actualizar();
+                    case 4 -> eliminar();
+                }
+            } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
-            agregarMas = consola.confirmar("¿Desea agregar otro producto? (S/N): ");
-        }
-        Pedido confirmado = pedidoService.confirmarPedido(pedido);
-        System.out.println("Pedido registrado con id " + confirmado.getId() + ". Total: $" + confirmado.getTotal());
+        } while (opcion != 0);
     }
 
-    private void actualizar() {
-        listar();
-        Long id = consola.leerLong("Ingrese el id del pedido: ");
-        try {
-            System.out.println("1. Cambiar estado");
-            System.out.println("2. Cambiar forma de pago");
-            int opcion = consola.leerEntero("Seleccione: ");
-            switch (opcion) {
-                case 1:
-                    pedidoService.actualizarEstado(id, consola.leerEstado());
-                    System.out.println("Estado actualizado correctamente.");
-                    break;
-                case 2:
-                    pedidoService.actualizarFormaPago(id, consola.leerFormaPago());
-                    System.out.println("Forma de pago actualizada correctamente.");
-                    break;
-                default:
-                    System.out.println("Opción inválida.");
-                    break;
-            }
-        } catch (EntityNotFoundException e) {
-            System.out.println("Error: " + e.getMessage());
+    private void listar() {
+        List<Pedido> lista = pedidoService.listarPedidos();
+        if (lista.isEmpty()) {
+            System.out.println("No hay transacciones registradas.");
+        } else {
+            lista.forEach(System.out::println);
         }
     }
 
-    private void eliminar() {
-        listar();
-        Long id = consola.leerLong("Ingrese el id del pedido a eliminar: ");
-        if (!consola.confirmar("¿Confirma la eliminación del pedido " + id + "? (S/N): ")) {
-            System.out.println("Operación cancelada.");
-            return;
+    private void crearPedido() throws Exception {
+        long idUsr = ConsolaHelper.leerEntero("Ingrese el ID del Cliente (Usuario): ");
+        
+        System.out.println("Forma de pago: 1. TARJETA | 2. TRANSFERENCIA | 3. EFECTIVO");
+        int pagoSel = ConsolaHelper.leerEntero("Seleccione: ");
+        FormaPago fp = switch (pagoSel) {
+            case 1 -> FormaPago.TARJETA;
+            case 2 -> FormaPago.TRANSFERENCIA;
+            default -> FormaPago.EFECTIVO;
+        };
+
+        List<DetallePedido> carroDeCompras = new ArrayList<>();
+        boolean agregando = true;
+
+        while (agregando) {
+            System.out.println("\n--- Catálogo de Productos ---");
+            productoService.listarProductos().forEach(System.out::println);
+            
+            long idProd = ConsolaHelper.leerEntero("ID del producto a añadir: ");
+            Producto prod = productoService.obtenerPorId(idProd);
+            int cant = ConsolaHelper.leerEntero("Cantidad: ");
+
+            DetallePedido item = new DetallePedido(cant, prod);
+            carroDeCompras.add(item);
+
+            agregando = ConsolaHelper.leerConfirmacion("¿Desea añadir otro producto a este pedido?");
         }
-        try {
-            pedidoService.eliminar(id);
-            System.out.println("Pedido eliminado (baja lógica).");
-        } catch (EntityNotFoundException e) {
-            System.out.println("Error: " + e.getMessage());
+
+        pedidoService.registrarPedido(idUsr, fp, carroDeCompras);
+        System.out.println("¡Pedido procesado e ingresado al sistema con éxito!");
+    }
+
+    private void actualizar() throws Exception {
+        listar();
+        long idPed = ConsolaHelper.leerEntero("Ingrese ID del pedido a modificar: ");
+        
+        System.out.println("Nuevo Estado: 1. PENDIENTE | 2. CONFIRMADO | 3. TERMINADO | 4. CANCELADO | 0. No cambiar");
+        int estSel = ConsolaHelper.leerEntero("Opción: ");
+        Estado est = switch(estSel) {
+            case 1 -> Estado.PENDIENTE;
+            case 2 -> Estado.CONFIRMADO;
+            case 3 -> Estado.TERMINADO;
+            case 4 -> Estado.CANCELADO;
+            default -> null;
+        };
+
+        System.out.println("Nueva Forma de Pago: 1. TARJETA | 2. TRANSFERENCIA | 3. EFECTIVO | 0. No cambiar");
+        int pagoSel = ConsolaHelper.leerEntero("Opción: ");
+        FormaPago fp = switch (pagoSel) {
+            case 1 -> FormaPago.TARJETA;
+            case 2 -> FormaPago.TRANSFERENCIA;
+            case 3 -> FormaPago.EFECTIVO;
+            default -> null;
+        };
+
+        pedidoService.actualizarEstadoPago(idPed, est, fp);
+        System.out.println("¡Pedido modificado correctamente!");
+    }
+
+    private void eliminar() throws Exception {
+        listar();
+        long idPed = ConsolaHelper.leerEntero("ID del pedido a eliminar: ");
+        if (ConsolaHelper.leerConfirmacion("¿Confirma la eliminación lógica de la orden de compra?")) {
+            pedidoService.eliminarPedido(idPed);
+            System.out.println("¡Pedido ocultado del historial activo!");
         }
     }
 }
