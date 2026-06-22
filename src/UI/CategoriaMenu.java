@@ -1,12 +1,8 @@
 package UI;
 
 import entities.Categoria;
-import exceptions.EntityNotFoundException;
-import exceptions.DuplicateEntityException;
-import exceptions.ValidationException;
 import service.CategoriaService;
 import service.ProductoService;
-
 import java.util.List;
 
 public class CategoriaMenu {
@@ -24,13 +20,13 @@ public class CategoriaMenu {
     public void mostrarMenu() {
         boolean volver = false;
         while (!volver) {
-            System.out.println("\n--- Categorías ---");
-            System.out.println("1. Listar");
-            System.out.println("2. Crear");
-            System.out.println("3. Editar");
-            System.out.println("4. Eliminar");
+            System.out.println("\n--- GESTIÓN DE CATEGORÍAS ---");
+            System.out.println("1. Listar Categorías");
+            System.out.println("2. Crear Categoría");
+            System.out.println("3. Editar Categoría");
+            System.out.println("4. Eliminar Categoría");
             System.out.println("0. Volver");
-            switch (consola.leerEntero("Seleccione: ")) {
+            switch (consola.leerEntero("Seleccione una opción: ")) {
                 case 1 -> listar();
                 case 2 -> crear();
                 case 3 -> editar();
@@ -42,52 +38,53 @@ public class CategoriaMenu {
     }
 
     public void listar() {
-        List<Categoria> categorias = categoriaService.listar();
-        if (categorias.isEmpty()) {
+        List<Categoria> lista = categoriaService.listar();
+        if (lista.isEmpty()) {
             System.out.println("No hay categorías cargadas.");
-            return;
+        } else {
+            lista.forEach(System.out::println);
         }
-        categorias.forEach(System.out::println);
     }
 
     private void crear() {
+        String nombre = consola.leerTexto("Ingrese nombre de la categoría: ");
+        String desc = consola.leerTexto("Ingrese descripción: ");
         try {
-            String nombre = consola.leerTexto("Nombre: ");
-            String descripcion = consola.leerTexto("Descripción: ");
-            Categoria creada = categoriaService.crear(nombre, descripcion);
-            System.out.println("Categoría creada con id " + creada.getId());
-        } catch (ValidationException | DuplicateEntityException e) {
+            Categoria nueva = categoriaService.crear(nombre, desc);
+            System.out.println("¡Categoría creada con éxito! (id " + nueva.getId() + ")");
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void editar() throws ValidationException, DuplicateEntityException {
+    private void editar() {
         listar();
-        Long id = consola.leerLong("Ingrese el id de la categoría a editar: ");
+        Long id = consola.leerLong("Ingrese el ID de la categoría a editar: ");
         try {
-            String nombre = consola.leerTexto("Nuevo nombre (vacío para mantener actual): ", true);
-            String descripcion = consola.leerTexto("Nueva descripción (vacío para mantener actual): ", true);
-            categoriaService.editar(id, nombre, descripcion);
-            System.out.println("Categoría actualizada correctamente.");
-        } catch (EntityNotFoundException e) {
+            Categoria actual = categoriaService.buscarPorId(id);
+            String nombre = consola.leerTexto("Nuevo nombre [" + actual.getNombre() + "]: ", true);
+            if (nombre.isBlank()) nombre = actual.getNombre();
+            String desc = consola.leerTexto("Nueva descripción [" + actual.getDescripcion() + "]: ", true);
+            if (desc.isBlank()) desc = actual.getDescripcion();
+
+            categoriaService.editar(id, nombre, desc);
+            System.out.println("¡Categoría actualizada!");
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
     private void eliminar() {
         listar();
-        Long id = consola.leerLong("Ingrese el id de la categoría a eliminar: ");
-        if (!consola.confirmar("¿Confirma la eliminación de la categoría " + id + "? (S/N): ")) {
+        Long id = consola.leerLong("Ingrese el ID de la categoría a eliminar: ");
+        if (!consola.confirmar("¿Está seguro de dar de baja lógica esta categoría? (S/N): ")) {
             System.out.println("Operación cancelada.");
             return;
         }
         try {
-            if (!productoService.listarPorCategoria(id).isEmpty()) {
-                System.out.println("Aviso: la categoría tiene productos asociados. Se eliminará igualmente.");
-            }
             categoriaService.eliminar(id);
-            System.out.println("Categoría eliminada (baja lógica).");
-        } catch (EntityNotFoundException e) {
+            System.out.println("¡Categoría dada de baja con éxito!");
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }

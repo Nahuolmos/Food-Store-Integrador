@@ -1,13 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DAO;
 
+import entities.Categoria;
+
 /**
- *
- * @author Lenovo
+ * DAO en memoria para Categoria. Hereda el CRUD genérico (save, update,
+ * findById, findAll, delete con baja lógica) de GenericMemoryDAO.
  */
-public class CategoriaDAO {
-    
+public class CategoriaDAO extends GenericMemoryDAO<Categoria> {
+
+    public boolean existePorNombre(String nombre) {
+        return findAll().stream()
+                .anyMatch(c -> c.getNombre().equalsIgnoreCase(nombre));
+    }
 }
