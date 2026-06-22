@@ -1,71 +1,54 @@
 package DAO;
 
-import exceptions.EntityNotFoundException;
 import entities.Base;
-
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
- * Implementación genérica en memoria (Map en vez de tabla SQL).
- * Centraliza la generación de ids y la lógica de baja lógica (soft delete).
+ * Motor Simulado en Memoria que replica las interacciones DAO con auto-incremento de ID.
  */
-public abstract class GenericMemoryDAO<T extends Base> implements IBaseDAO<T> {
-
-    protected final Map<Long, T> tablaSimulada = new LinkedHashMap<>();
-    protected final AtomicLong secuenciaId = new AtomicLong(1);
+public class GenericMemoryDAO<T extends Base> implements IBaseDAO<T> {
+    protected Map<Long, T> storage = new HashMap<>();
+    private long currentId = 1;
 
     @Override
-    public T save(T entity) {
-        Long nuevoId = secuenciaId.getAndIncrement();
-        entity.setId(nuevoId);
-        entity.setEliminado(false);
-        tablaSimulada.put(nuevoId, entity);
-        return entity;
+    public List<T> findAll() {
+        List<T> list = new ArrayList<>();
+        for (T entity : storage.values()) {
+            if (!entity.isEliminado()) {
+                list.add(entity);
+            }
+        }
+        return list;
     }
 
     @Override
     public void update(T entity) {
-        if (entity.getId() == null || !tablaSimulada.containsKey(entity.getId())) {
-            try {
-                throw new EntityNotFoundException("No existe el registro con id " + entity.getId());
-            } catch (EntityNotFoundException ex) {
-                System.getLogger(GenericMemoryDAO.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
-        }
-        tablaSimulada.put(entity.getId(), entity);
-    }
-
-    @Override
-    public Optional<T> findById(Long id) {
-        T entity = tablaSimulada.get(id);
-        if (entity == null || entity.isEliminado()) {
-            return Optional.empty();
-        }
-        return Optional.of(entity);
-    }
-
-    @Override
-    public List<T> findAll() {
-        return tablaSimulada.values().stream()
-                .filter(e -> !e.isEliminado())
-                .collect(Collectors.toList());
+        storage.put(entity.getId(), entity);
     }
 
     @Override
     public void delete(Long id) {
-        T entity = tablaSimulada.get(id);
-        if (entity == null || entity.isEliminado()) {
-            try {
-                throw new EntityNotFoundException("No existe el registro con id " + id);
-            } catch (EntityNotFoundException ex) {
-                System.getLogger(GenericMemoryDAO.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-            }
+        T entity = findById(id);
+        if (entity != null) {
+            entity.setEliminado(true); // Soft Delete estricto
         }
-        entity.setEliminado(true);
     }
+
+    @Override
+    public T save(T entity) {
+        if (entity.getId() == null) {
+            entity.setId(currentId++);
+        }
+         return storage.put(entity.getId(), entity);   
+    }
+
+    @Override
+    public T findById(Long id) {
+        return storage.get(id);
+    }
+
 }

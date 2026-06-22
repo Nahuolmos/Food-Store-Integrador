@@ -1,21 +1,27 @@
 package DAO;
 
 import entities.Producto;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * DAO en memoria para Producto. Hereda el CRUD genérico de GenericMemoryDAO.
- */
 public class ProductoDAO extends GenericMemoryDAO<Producto> {
-
-    public List<Producto> findByCategoria(Long categoriaId) {
-        return findAll().stream()
-                .filter(p -> p.getCategoria() != null && p.getCategoria().getId().equals(categoriaId))
-                .collect(Collectors.toList());
+    
+    public List<Producto> findByCategoria(Long idCategoria) {
+        List<Producto> res = new ArrayList<>();
+        for (Producto p : storage.values()) {
+            if (!p.isEliminado() && p.getCategoria() != null && p.getCategoria().getId().equals(idCategoria)) {
+                res.add(p);
+            }
+        }
+        return res;
     }
 
-    public boolean tieneProductosAsociados(Long categoriaId) {
-        return !findByCategoria(categoriaId).isEmpty();
+    public boolean tieneProductosAsociados(Long idCategoria) {
+        for (Producto p : storage.values()) {
+            if (!p.isEliminado() && p.getCategoria() != null && p.getCategoria().getId().equals(idCategoria)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
