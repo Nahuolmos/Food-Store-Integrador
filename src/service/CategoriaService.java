@@ -1,65 +1,66 @@
 package service;
 
 import DAO.CategoriaDAO;
-import exceptions.EntityNotFoundException;
+import DAO.ProductoDAO;
 import entities.Categoria;
 import exceptions.DuplicateEntityException;
+import exceptions.EntityNotFoundException;
 import exceptions.ValidationException;
 import java.util.List;
 
 public class CategoriaService {
 
     private final CategoriaDAO categoriaDAO;
+    private final ProductoDAO productoDAO;
 
-    public CategoriaService() {
-        this.categoriaDAO = new CategoriaDAO();
-    }
-
-    public CategoriaService(CategoriaDAO categoriaDAO) {
+    public CategoriaService(CategoriaDAO categoriaDAO, ProductoDAO productoDAO) {
         this.categoriaDAO = categoriaDAO;
+        this.productoDAO = productoDAO;
     }
 
     public Categoria crear(String nombre, String descripcion) throws ValidationException, DuplicateEntityException {
-        validarNombre(nombre);
+        validarDatos(nombre, descripcion);
         if (categoriaDAO.existePorNombre(nombre)) {
-            throw new DuplicateEntityException("Ya existe una categoria con el nombre '" + nombre + "'");
+            throw new DuplicateEntityException("Ya existe una categoría con ese nombre.");
         }
         Categoria categoria = new Categoria(nombre, descripcion);
-        return categoriaDAO.crear(categoria);
+        return categoriaDAO.save(categoria);
     }
 
     public List<Categoria> listar() {
-        return categoriaDAO.listarTodos();
+        return categoriaDAO.findAll();
     }
 
     public Categoria buscarPorId(Long id) throws EntityNotFoundException {
-        return categoriaDAO.buscarPorId(id);
+        return categoriaDAO.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("La categoría con ID " + id + " no existe."));
     }
 
-    public void editar(Long id, String nombre, String descripcion)
-            throws EntityNotFoundException, ValidationException, DuplicateEntityException {
-        validarNombre(nombre);
-        Categoria categoria = categoriaDAO.buscarPorId(id);
+    public void editar(Long id, String nombre, String descripcion) throws EntityNotFoundException, ValidationException, DuplicateEntityException {
+        Categoria categoria = buscarPorId(id);
+        validarDatos(nombre, descripcion);
         if (!categoria.getNombre().equalsIgnoreCase(nombre) && categoriaDAO.existePorNombre(nombre)) {
-            throw new DuplicateEntityException("Ya existe una categoria con el nombre '" + nombre + "'");
+            throw new DuplicateEntityException("Ya existe una categoría con ese nombre.");
         }
         categoria.setNombre(nombre);
         categoria.setDescripcion(descripcion);
-        categoriaDAO.actualizar(categoria);
+        categoriaDAO.update(categoria);
     }
 
-    public boolean tieneProductosAsociados(Long id) {
-        return categoriaDAO.tieneProductosAsociados(id);
+    public void eliminar(Long id) throws EntityNotFoundException, ValidationException {
+        buscarPorId(id);
+        if (productoDAO.tieneProductosAsociados(id)) {
+            throw new ValidationException("No se puede eliminar la categoría porque contiene productos activos.");
+        }
+        categoriaDAO.delete(id);
     }
 
-    public void eliminar(Long id) throws EntityNotFoundException {
-        categoriaDAO.buscarPorId(id);
-        categoriaDAO.eliminar(id);
-    }
-
-    private void validarNombre(String nombre) throws ValidationException {
+    private void validarDatos(String nombre, String descripcion) throws ValidationException {
         if (nombre == null || nombre.trim().isEmpty()) {
-            throw new ValidationException("El nombre de la categoria no puede estar vacio");
+            throw new ValidationException("El nombre no puede estar vacío.");
+        }
+        if (descripcion == null || descripcion.trim().isEmpty()) {
+            throw new ValidationException("La descripción no puede estar vacía.");
         }
     }
 }
