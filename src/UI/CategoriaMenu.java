@@ -2,43 +2,41 @@ package UI;
 
 import entities.Categoria;
 import service.CategoriaService;
-import service.ProductoService;
 import java.util.List;
 
-public class CategoriaMenu {
+public class CategoriaMenu{
+    private CategoriaService service;
 
-    private final CategoriaService categoriaService;
-    private final ProductoService productoService;
-    private final ConsolaHelper consola;
-
-    public CategoriaMenu(CategoriaService categoriaService, ProductoService productoService, ConsolaHelper consola) {
-        this.categoriaService = categoriaService;
-        this.productoService = productoService;
-        this.consola = consola;
+    public CategoriaMenu(CategoriaService service) {
+        this.service = service;
     }
 
     public void mostrarMenu() {
-        boolean volver = false;
-        while (!volver) {
+        int opcion;
+        do {
             System.out.println("\n--- GESTIÓN DE CATEGORÍAS ---");
             System.out.println("1. Listar Categorías");
             System.out.println("2. Crear Categoría");
             System.out.println("3. Editar Categoría");
             System.out.println("4. Eliminar Categoría");
             System.out.println("0. Volver");
-            switch (consola.leerEntero("Seleccione una opción: ")) {
-                case 1 -> listar();
-                case 2 -> crear();
-                case 3 -> editar();
-                case 4 -> eliminar();
-                case 0 -> volver = true;
-                default -> System.out.println("Opción inválida.");
+            opcion = ConsolaHelper.leerEntero("Seleccione una opción: ");
+
+            try {
+                switch (opcion) {
+                    case 1 -> listar();
+                    case 2 -> crear();
+                    case 3 -> editar();
+                    case 4 -> eliminar();
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
             }
-        }
+        } while (opcion != 0);
     }
 
-    public void listar() {
-        List<Categoria> lista = categoriaService.listar();
+    private void listar() {
+        List<Categoria> lista = service.listarCategorias();
         if (lista.isEmpty()) {
             System.out.println("No hay categorías cargadas.");
         } else {
@@ -46,46 +44,28 @@ public class CategoriaMenu {
         }
     }
 
-    private void crear() {
-        String nombre = consola.leerTexto("Ingrese nombre de la categoría: ");
-        String desc = consola.leerTexto("Ingrese descripción: ");
-        try {
-            Categoria nueva = categoriaService.crear(nombre, desc);
-            System.out.println("¡Categoría creada con éxito! (id " + nueva.getId() + ")");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+    private void crear() throws Exception {
+        String nombre = ConsolaHelper.leerCadena("Ingrese nombre de la categoría: ");
+        String desc = ConsolaHelper.leerCadena("Ingrese descripción: ");
+        service.crearCategoria(nombre, desc);
+        System.out.println("¡Categoría creada con éxito!");
     }
 
-    private void editar() {
+    private void editar() throws Exception {
         listar();
-        Long id = consola.leerLong("Ingrese el ID de la categoría a editar: ");
-        try {
-            Categoria actual = categoriaService.buscarPorId(id);
-            String nombre = consola.leerTexto("Nuevo nombre [" + actual.getNombre() + "]: ", true);
-            if (nombre.isBlank()) nombre = actual.getNombre();
-            String desc = consola.leerTexto("Nueva descripción [" + actual.getDescripcion() + "]: ", true);
-            if (desc.isBlank()) desc = actual.getDescripcion();
-
-            categoriaService.editar(id, nombre, desc);
-            System.out.println("¡Categoría actualizada!");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
+        long id = ConsolaHelper.leerEntero("Ingrese el ID de la categoría a editar: ");
+        String nombre = ConsolaHelper.leerCadena("Ingrese nuevo nombre: ");
+        String desc = ConsolaHelper.leerCadena("Ingrese nueva descripción: ");
+        service.editarCategoria(id, nombre, desc);
+        System.out.println("¡Categoría actualizada!");
     }
 
-    private void eliminar() {
+    private void eliminar() throws Exception {
         listar();
-        Long id = consola.leerLong("Ingrese el ID de la categoría a eliminar: ");
-        if (!consola.confirmar("¿Está seguro de dar de baja lógica esta categoría? (S/N): ")) {
-            System.out.println("Operación cancelada.");
-            return;
-        }
-        try {
-            categoriaService.eliminar(id);
+        long id = ConsolaHelper.leerEntero("Ingrese el ID de la categoría a eliminar: ");
+        if (ConsolaHelper.leerConfirmacion("¿Está seguro de dar de baja lógica esta categoría?")) {
+            service.eliminarCategoria(id);
             System.out.println("¡Categoría dada de baja con éxito!");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
         }
     }
 }
