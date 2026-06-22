@@ -1,10 +1,11 @@
 package UI;
 
+import Exceptions.BusinessException;
 import Exceptions.EntityNotFoundException;
 import entities.Pedido;
 import enums.FormaPago;
+import exceptions.ValidationException;
 import java.util.List;
-import java.util.Scanner;
 import service.PedidoService;
 
 public class PedidoMenu {
@@ -20,7 +21,7 @@ public class PedidoMenu {
         this.consola = consola;
     }
 
-    public void mostrarMenu() {
+    public void mostrarMenu() throws ValidationException, BusinessException, EntityNotFoundException {
         boolean volver = false;
         while (!volver) {
             System.out.println("\n--- Pedidos ---");
@@ -49,33 +50,26 @@ public class PedidoMenu {
         pedidos.forEach(System.out::println);
     }
 
-    private void crearConDetalles() {
-        try {
-            usuarioMenu.listar();
-            Long usuarioId = consola.leerLong("Id del usuario: ");
-            FormaPago formaPago = consola.leerFormaPago();
-
-            Pedido pedido = pedidoService.iniciarPedido(usuarioId, formaPago);
-
-            boolean agregarMas = true;
-            while (agregarMas) {
-                productoMenu.listar();
-                Long productoId = consola.leerLong("Id del producto a agregar: ");
-                int cantidad = consola.leerEntero("Cantidad: ");
-                try {
-                    pedidoService.agregarDetalle(pedido, productoId, cantidad);
-                    System.out.println("Detalle agregado.");
-                } catch (EntityNotFoundException e) {
-                    System.out.println("Error: " + e.getMessage());
-                }
-                agregarMas = consola.confirmar("¿Desea agregar otro producto? (S/N): ");
+    private void crearConDetalles() throws ValidationException, BusinessException, EntityNotFoundException {
+        usuarioMenu.listar();
+        Long usuarioId = consola.leerLong("Id del usuario: ");
+        FormaPago formaPago = consola.leerFormaPago();
+        Pedido pedido = pedidoService.iniciarPedido(usuarioId, formaPago);
+        boolean agregarMas = true;
+        while (agregarMas) {
+            productoMenu.listar();
+            Long productoId = consola.leerLong("Id del producto a agregar: ");
+            int cantidad = consola.leerEntero("Cantidad: ");
+            try {
+                pedidoService.agregarDetalle(pedido, productoId, cantidad);
+                System.out.println("Detalle agregado.");
+            } catch (EntityNotFoundException e) {
+                System.out.println("Error: " + e.getMessage());
             }
-
-            Pedido confirmado = pedidoService.confirmarPedido(pedido);
-            System.out.println("Pedido registrado con id " + confirmado.getId() + ". Total: $" + confirmado.getTotal());
-        } catch (EntityNotFoundException e) {
-            System.out.println("Error: " + e.getMessage());
+            agregarMas = consola.confirmar("¿Desea agregar otro producto? (S/N): ");
         }
+        Pedido confirmado = pedidoService.confirmarPedido(pedido);
+        System.out.println("Pedido registrado con id " + confirmado.getId() + ". Total: $" + confirmado.getTotal());
     }
 
     private void actualizar() {
@@ -85,14 +79,18 @@ public class PedidoMenu {
             System.out.println("1. Cambiar estado");
             System.out.println("2. Cambiar forma de pago");
             int opcion = consola.leerEntero("Seleccione: ");
-            if (opcion == 1) {
-                pedidoService.actualizarEstado(id, consola.leerEstado());
-                System.out.println("Estado actualizado correctamente.");
-            } else if (opcion == 2) {
-                pedidoService.actualizarFormaPago(id, consola.leerFormaPago());
-                System.out.println("Forma de pago actualizada correctamente.");
-            } else {
-                System.out.println("Opción inválida.");
+            switch (opcion) {
+                case 1:
+                    pedidoService.actualizarEstado(id, consola.leerEstado());
+                    System.out.println("Estado actualizado correctamente.");
+                    break;
+                case 2:
+                    pedidoService.actualizarFormaPago(id, consola.leerFormaPago());
+                    System.out.println("Forma de pago actualizada correctamente.");
+                    break;
+                default:
+                    System.out.println("Opción inválida.");
+                    break;
             }
         } catch (EntityNotFoundException e) {
             System.out.println("Error: " + e.getMessage());

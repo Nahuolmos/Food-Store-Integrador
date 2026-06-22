@@ -2,12 +2,14 @@ package service;
 
 import Exceptions.EntityNotFoundException;
 import DAO.PedidoDAO;
+import Exceptions.BusinessException;
 import entities.DetallePedido;
 import entities.Pedido;
 import entities.Producto;
 import entities.Usuario;
 import enums.Estado;
 import enums.FormaPago;
+import exceptions.ValidationException;
 
 import java.util.List;
 
@@ -23,14 +25,14 @@ public class PedidoService {
         this.productoService = productoService;
     }
 
-    public Pedido iniciarPedido(Long usuarioId, FormaPago formaPago) {
+    public Pedido iniciarPedido(Long usuarioId, FormaPago formaPago) throws EntityNotFoundException {
         Usuario usuario = usuarioService.buscarPorId(usuarioId);
         Pedido pedido = new Pedido(formaPago, usuario);
         return pedido;
     }
 
     /** Usa obligatoriamente el método propio de Pedido definido en el UML. */
-    public void agregarDetalle(Pedido pedido, Long productoId, int cantidad) {
+    public void agregarDetalle(Pedido pedido, Long productoId, int cantidad) throws ValidationException, BusinessException, EntityNotFoundException {
         if (cantidad <= 0) {
             throw new ValidationException("La cantidad debe ser mayor a 0.");
         }
@@ -41,13 +43,13 @@ public class PedidoService {
         pedido.addDetallePedido(cantidad, producto);
     }
 
-    public void quitarDetalle(Pedido pedido, Long productoId) {
+    public void quitarDetalle(Pedido pedido, Long productoId) throws EntityNotFoundException {
         Producto producto = productoService.buscarPorId(productoId);
         pedido.deleteDetallePedidoByProducto(producto);
     }
 
     /** Calcula el total vía Calculable y persiste el pedido completo. */
-    public Pedido confirmarPedido(Pedido pedido) {
+    public Pedido confirmarPedido(Pedido pedido) throws ValidationException {
         if (pedido.getDetalles().isEmpty()) {
             throw new ValidationException("El pedido debe tener al menos un detalle.");
         }
