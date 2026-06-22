@@ -74,7 +74,6 @@ public class Usuario extends Base {
                "| Nombre: " + nombre + " " + apellido +
                "| Email: " + mail +
                "| Celular: " + celular +
-               "| Rol: " + rol +
-               "| Creado: " + getCreatedAt();
+               "| Rol: " + rol;
     }
 }
