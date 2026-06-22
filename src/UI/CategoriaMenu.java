@@ -1,8 +1,8 @@
 package UI;
 
 import entities.Categoria;
+import Exceptions.EntityNotFoundException;
 import exceptions.DuplicateEntityException;
-import exceptions.EntityNotFoundException;
 import exceptions.ValidationException;
 import service.CategoriaService;
 import service.ProductoService;
