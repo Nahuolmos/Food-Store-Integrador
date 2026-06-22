@@ -1,7 +1,7 @@
 package UI;
 
 import entities.Categoria;
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import exceptions.DuplicateEntityException;
 import exceptions.ValidationException;
 import service.CategoriaService;
@@ -61,7 +61,7 @@ public class CategoriaMenu {
         }
     }
 
-    private void editar() {
+    private void editar() throws ValidationException, DuplicateEntityException {
         listar();
         Long id = consola.leerLong("Ingrese el id de la categoría a editar: ");
         try {

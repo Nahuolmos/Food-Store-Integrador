@@ -1,4 +1,3 @@
-// --- Clase: integrado/prog2/ui/MenuPrincipal.java ---
 package UI;
 
 import service.CategoriaService;

@@ -1,6 +1,6 @@
 package DAO;
 
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import entities.Base;
 
 import java.util.LinkedHashMap;

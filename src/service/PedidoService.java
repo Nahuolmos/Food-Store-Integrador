@@ -1,8 +1,8 @@
 package service;
 
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import DAO.PedidoDAO;
-import Exceptions.BusinessException;
+import exceptions.BusinessException;
 import entities.DetallePedido;
 import entities.Pedido;
 import entities.Producto;

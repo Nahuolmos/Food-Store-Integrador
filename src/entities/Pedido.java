@@ -1,6 +1,6 @@
 package entities;
 
-import Exceptions.BusinessException;
+import exceptions.BusinessException;
 import enums.Estado;
 import enums.FormaPago;
 import interfaces.Calculable;

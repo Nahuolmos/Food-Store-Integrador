@@ -1,7 +1,7 @@
 package UI;
 
-import Exceptions.BusinessException;
-import Exceptions.EntityNotFoundException;
+import exceptions.BusinessException;
+import exceptions.EntityNotFoundException;
 import entities.Pedido;
 import enums.FormaPago;
 import exceptions.ValidationException;

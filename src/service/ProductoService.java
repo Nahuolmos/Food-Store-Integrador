@@ -4,7 +4,7 @@ import DAO.CategoriaDAO;
 import DAO.ProductoDAO;
 import entities.Categoria;
 import entities.Producto;
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import exceptions.ValidationException;
 
 import java.util.List;

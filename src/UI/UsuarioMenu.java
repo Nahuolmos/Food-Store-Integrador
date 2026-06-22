@@ -1,6 +1,6 @@
 package UI;
  
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import entities.Usuario;
 import enums.Rol;
 import java.util.List;

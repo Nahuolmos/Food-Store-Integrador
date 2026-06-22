@@ -1,6 +1,6 @@
 package service;
  
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import DAO.UsuarioDAO;
 import entities.Usuario;
 import enums.Rol;

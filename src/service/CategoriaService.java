@@ -1,7 +1,7 @@
 package service;
 
 import DAO.CategoriaDAO;
-import Exceptions.EntityNotFoundException;
+import exceptions.EntityNotFoundException;
 import entities.Categoria;
 import exceptions.DuplicateEntityException;
 import exceptions.ValidationException;
