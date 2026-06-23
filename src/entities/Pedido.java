@@ -107,10 +107,18 @@ public class Pedido extends Base implements Calculable{
     }
 
     @Override
-    public String toString() {
-        return '='+"===== Pedido ======" + 
-                "\n|Fecha: " + fecha + " - Estado: " + estado + "Usuario" + " |" + 
-                "\n" + detalles + 
-                "\n- Total: $" + total + " - Metodo de pago: " + formaPago;
+     public String toString() {
+        String usrNom = (usuario != null) ? usuario.getNombre() + " " + usuario.getApellido() : "Ninguno";
+        StringBuilder sb = new StringBuilder();
+        sb.append("Pedido [ID: ").append(getId())
+          .append(" | Fecha: ").append(fecha)
+          .append(" | Cliente: ").append(usrNom)
+          .append(" | Estado: ").append(estado)
+          .append(" | Pago: ").append(formaPago)
+          .append(" | Total: $").append(total).append("]\n");
+        for(DetallePedido dp : detalles) {
+            sb.append(dp.toString()).append("\n");
+        }
+        return sb.toString();
     }
 }
