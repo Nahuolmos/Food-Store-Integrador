@@ -10,6 +10,9 @@ public class Producto extends Base {
     private Boolean disponible;
     private Categoria categoria;
 
+    public Producto() {
+    }
+
     public Producto(String nombre, Double precio, String descripcion, int stock, String imagen, Categoria categoria1) {
         super();
         this.nombre = nombre;

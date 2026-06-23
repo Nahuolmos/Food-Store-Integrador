@@ -9,6 +9,7 @@ import entities.Producto;
 import entities.DetallePedido;
 import enums.Estado;
 import enums.FormaPago;
+import exceptions.BusinessException;
 import exceptions.EntityNotFoundException;
 import exceptions.ValidationException;
 import java.util.List;
@@ -51,8 +52,7 @@ public class PedidoService {
             pedido.calcularTotal();
             pedidoDAO.save(pedido);
 
-        } catch (Exception e) {
-            // Rollback en memoria: Si algo falla, revertimos el stock de los productos procesados
+        } catch (BusinessException | EntityNotFoundException | ValidationException e) {
             for(DetallePedido item : mockDetalles) {
                 Producto prod = productoDAO.findById(item.getProducto().getId());
                 if (prod != null) {
