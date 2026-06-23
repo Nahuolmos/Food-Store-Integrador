@@ -79,6 +79,8 @@ public class Producto extends Base {
 
     @Override
     public String toString() {
-        return "Producto{" + "nombre=" + nombre + ", precio=" + precio + ", descripcion=" + descripcion + ", stock=" + stock + ", imagen=" + imagen + ", disponible=" + disponible + ", categoria=" + categoria + '}';
+        String catNom = (categoria != null) ? categoria.getNombre() : "Ninguna";
+        return "Producto [ID: " + getId() + " | Nombre: " + nombre + " | Precio: $" + precio + 
+               " | Stock: " + stock + " | Disponible: " + disponible + " | Categoría: " + catNom + "]";
     }
 }
