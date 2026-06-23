@@ -10,6 +10,9 @@ public class Categoria extends Base {
     private String descripcion;
     private List<Producto> productos = new ArrayList<>();
 
+    public Categoria() {
+    }
+
     public Categoria(String nombre, String descripcion) {
         super();
         this.nombre = nombre;

@@ -20,6 +20,9 @@ public class Usuario extends Base {
         this.rol = rol;
     }
 
+    public Usuario() {
+    }
+    
     public String getNombre() {
         return nombre;
     }

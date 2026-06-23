@@ -27,6 +27,10 @@ public class Pedido extends Base implements Calculable{
         calcularTotal();
     }
 
+    public Pedido() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     public LocalDate getFecha() {
         return fecha;
     }
@@ -120,5 +124,9 @@ public class Pedido extends Base implements Calculable{
             sb.append(dp.toString()).append("\n");
         }
         return sb.toString();
+    }
+
+    public void setTotal(double aDouble) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
