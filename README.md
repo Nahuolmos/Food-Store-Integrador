@@ -1,6 +1,6 @@
 # Food Store Integrador
 
-Sistema de gestión para una tienda de comida (estilo hamburguesería) desarrollado en Java puro, con persistencia en MySQL. Se trata de un proyecto integrador, por lo que la interfaz es de consola, sin frameworks ni interfaces gráficas de por medio.
+Sistema de gestión para una tienda de comida desarrollado en Java, con persistencia en MySQL. Se trata de un proyecto integrador, por lo que la interfaz es de consola, sin frameworks ni interfaces gráficas de por medio.
 
 Permite administrar categorías, productos, usuarios y pedidos, aplicando las reglas de negocio correspondientes (control de stock, validaciones, bajas lógicas, entre otras).
 
@@ -18,14 +18,16 @@ El código se organiza en capas:
 
 ## Requisitos
 
-- JDK 25 (o la versión configurada en el proyecto)
+- JDK 21 (es la versión configurada en el proyecto)
 - MySQL Server
 - Conector MySQL para Java (mysql-connector-j)
-- NetBeans (el proyecto está configurado para este IDE, aunque también puede compilarse con Ant o javac)
+- NetBeans (los integrantes hemos usado este IDE para desarrollar el trabajo)
 
 ## Base de datos
 
-Antes de ejecutar el proyecto es necesario crear la base de datos. El script correspondiente se encuentra en `src/config/schema.sql` y crea la base `pedidos_db` con las siguientes tablas:
+Decidimos empezar y terminar la primera version del proyecto generado en memoria, basicamente decidimos trabajar con listas y arrays. Creamos y compilamos todo el codigo en base a una generacion en memoria para tener un primer vistazo de lo que seria el codigo terminado y asi revisar que fuese funcional. Una vez que logramos que el codigo corriera con la generacion en memoria, decidimos implementar la persistencia en base de datos. Se creo el paquete `config` y se agregó la clase `ConexionDB` para conectar a la base de datos del sql; se modificaron totalmente los DAO para que la persistencia estuviese correctamente aplicada, junto con eso, se creo una clase llamada `TestConexion` para como dice su nombre verificar la conexion fuese exitosa y asi poder saber que lo que hicimos correctamente.
+
+El script correspondiente se encuentra en `src/config/schema.sql` y crea la base `pedidos_db` con las siguientes tablas:
 
 - categoria
 - producto
@@ -48,7 +50,7 @@ En `src/config/ConexionDB.java` se encuentran definidos la URL, el usuario y la 
 ```java
 private static final String URL = "jdbc:mysql://localhost:3306/pedidos_db";
 private static final String USER = "root";
-private static final String PASSWORD = "su_contraseña";
+private static final String PASSWORD = "112233654Facu";
 ```
 
 ## Ejecución
@@ -64,17 +66,13 @@ Al iniciar, el sistema carga algunas categorías, productos y usuarios de ejempl
 
 ## Funcionalidades
 
-- Alta, baja, modificación y listado de categorías.
-- Alta, baja, modificación y listado de productos, con control de stock y categoría asociada.
+- Modificación y listado de categorías.
+- Modificación y listado de productos, con control de stock y categoría asociada.
 - Registro y gestión de usuarios, con roles (ADMIN / USUARIO).
 - Creación de pedidos con sus respectivos detalles, calculando el total de forma automática.
 - Bajas lógicas: los registros no se eliminan físicamente, sino que se marcan como eliminados.
 - Manejo de excepciones propias para errores de negocio, validación, duplicados y entidades no encontradas.
 
-## Sobre los services
+## Logica de negocio del sistema (Services)
 
 Los services contienen la lógica de negocio del sistema, mientras que las DAO se limitan al acceso a datos. Cada entidad principal cuenta con su propio service (CategoriaService, ProductoService, UsuarioService, PedidoService), encargado de validar la información antes de persistirla, controlar el stock, verificar la inexistencia de duplicados (por ejemplo, un correo de usuario repetido) y calcular valores como el total de un pedido. Ante el incumplimiento de alguna regla de negocio, se lanzan las excepciones personalizadas correspondientes.
-
-## Notas
-
-Este proyecto fue desarrollado como trabajo integrador, con el objetivo de poner en práctica conceptos de programación orientada a objetos, organización en capas y persistencia mediante JDBC puro, sin la utilización de ORMs ni frameworks externos.
